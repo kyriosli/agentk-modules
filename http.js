@@ -181,13 +181,8 @@ export class Headers {
 const stream_Readable = require('stream').Readable;
 const _empty = new Buffer(0);
 
-const $Buffer_fromString = Buffer.alloc ? Buffer.from : function (str) {
-        const buf = new Buffer(str.length * 3);
-        return buf.slice(0, buf.write(str));
-    },
-    $Buffer_fromArrayBuffer = Buffer.alloc ? Buffer.from : function (obj) {
-        return new Buffer(new Uint8Array(obj))
-    };
+Buffer.alloc || include('buffer_polyfill');
+
 /**
  * Abstract class for http request/response entity
  *
@@ -201,16 +196,8 @@ export class Body {
         let buf = null, stream = null;
         if (body && body instanceof stream_Readable) {
             stream = body;
-        } else if (!body) {
-            buf = _empty
-        } else if (typeof body === 'string') {
-            buf = $Buffer_fromString(body)
-        } else if (body instanceof Buffer) {
-            buf = body;
-        } else if (body instanceof ArrayBuffer) {
-            buf = $Buffer_fromArrayBuffer(body)
         } else {
-            throw new Error('body accepts only string, Buffer, ArrayBuffer or stream.Readable');
+            buf = Buffer.from(body)
         }
         this._stream = stream;
         this._buffer = buf;

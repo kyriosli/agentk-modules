@@ -76,10 +76,7 @@ function makeFlusher(stream, onMessage) {
     }
 }
 
-const $Buffer_fromString = Buffer.alloc ? Buffer.from : function (str) {
-    const buf = new Buffer(str.length * 3);
-    return buf.slice(0, buf.write(str));
-};
+Buffer.alloc || include('buffer_polyfill');
 
 class WebSocket extends EventEmitter {
     constructor(socket, settings) {
@@ -253,7 +250,7 @@ class WebSocket extends EventEmitter {
         } else {
             msg = '' + msg;
             opcode = 1;
-            payload = $Buffer_fromString(msg);
+            payload = Buffer.from(msg);
         }
 
         this._send(opcode, payload);

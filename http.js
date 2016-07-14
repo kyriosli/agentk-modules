@@ -194,7 +194,9 @@ export class Body {
      */
     constructor(body) {
         let buf = null, stream = null;
-        if (body && body instanceof stream_Readable) {
+        if (!body) {
+            buf = Buffer.allocUnsafe(0)
+        } else if (body instanceof stream_Readable) {
             stream = body;
         } else {
             buf = Buffer.from(body)

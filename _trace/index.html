@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Index</title>
+</head>
+<body>
+<img src="/index.js" alt="">
+<img src="avatar.png" alt="">
+<script>fetch('test.json', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: '{"foo":"bar"}'
+});
+fetch('/foo?a=b&c=d&e=%E5%93%88%E5%93%88', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: 'aa=bb&cc=dd&ee=%E5%93%88%E5%93%88%E5%93%88%E5%93%88'
+});
+fetch('/bar');
+</script>
+</body>
+</html>

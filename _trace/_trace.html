@@ -1,0 +1,43 @@
+<!doctype html>
+<html style="height: 100%">
+<head>
+    <meta charset="UTF-8">
+    <title>trace</title>
+    <link rel="stylesheet" href="_trace.css">
+</head>
+<body style="margin:0; height: 100%">
+<ul id="header">
+    <li>
+        <i class="i-time">
+            <a href="?action=history&filter=all">all</a>
+            <a href="?action=history&filter=last&count=10">last 10</a>
+            <a href="?action=history&filter=last&count=50">last 50</a>
+            <a href="?action=clear_history" style="color: #ffcc80">clear</a>
+        </i>
+        <i class="i-method">TYPE</i>
+        <i class="i-pathname">
+            <span style="float:right">
+                <a href="?action=history&filter=failed">failed</a>
+            </span>
+            pathname</i>
+        <i class="i-status">code
+        </i>
+        <i class="i-size">size</i>
+        <i class="i-duration">duration</i>
+        <i class="i-addr">IP
+            <a href="?action=history&filter=this_ip">this ip</a>
+            <a href="?action=history&filter=by_ip">filter</a>
+        </i>
+        <i class="i-type">
+            <a href="?action=history&filter=by_type&type=html">html</a>
+            <a href="?action=history&filter=by_type&type=javascript">js</a>
+            <a href="?action=history&filter=by_type&type=json">json</a>
+            <a href="?action=history&filter=by_type&type=image">image</a>
+        </i>
+    </li>
+</ul>
+<ul id="requests"></ul>
+
+<script src="_trace.js"></script>
+</body>
+</html>

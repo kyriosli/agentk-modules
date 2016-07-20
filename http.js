@@ -774,7 +774,9 @@ export function fetch(url, options) {
     const method = options.method = req.method;
     let headers = options.headers = groupHeaders(req);
     options.agent = _agent;
-    if (!headers.Host && !headers.host) headers.host = http_host;
+    if (!req.headers.has('host')) headers.host = http_host;
+    if (!req.headers.has('user-agent')) headers['User-Agent'] = client_ua;
+
 
     if (method === 'GET' ||
         method === 'HEAD' ||

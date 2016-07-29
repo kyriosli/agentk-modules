@@ -57,22 +57,26 @@ export function setup(trace_file, options) {
     http.fetch = function (url, options) {
         const fiber = co.Fiber.current, api_calls = fiber && fiber.api_calls;
         if (!api_calls) return $fetch.apply(this, arguments);
-        const req = typeof url === 'object' && url instanceof http.Request ? url : new http.Request(url, options);
         const start = api_calls.time_start, time_start = stop(start);
+
+        const req = typeof url === 'object' && url instanceof http.Request ? url : new http.Request(url, options);
         arguments[0] = req;
+
+        const obj = {
+            time_start: time_start,
+            time_end: time_start,
+            request: req
+        };
+        api_calls.push(obj);
+
         const promise = $fetch.apply(this, arguments);
         promise.then(fulfill, fulfill.bind(null, null));
         return promise;
 
         function fulfill(res, err) {
-            const time_end = stop(start);
-            api_calls.push({
-                time_start: time_start,
-                time_end: time_end,
-                remote: res ? getAddress(res._stream) : '-',
-                request: req,
-                response: [res, err]
-            })
+            obj.time_end = stop(start);
+            obj.remote = res ? getAddress(res._stream) : '-';
+            obj.response = [res, err];
         }
     };
     function msgIterator() {
@@ -242,7 +246,7 @@ export function setup(trace_file, options) {
             if (api_calls.length) for (let obj of api_calls) {
                 arr.push(obj);
                 if (!obj.request) continue;
-                const req = obj.request, _res = obj.response;
+                const req = obj.request;
                 let url = req.url, idx = url.indexOf('?'), search = '';
                 if (idx !== -1) {
                     search = url.slice(idx + 1);
@@ -253,7 +257,8 @@ export function setup(trace_file, options) {
                     entry: url,
                     search: search
                 }, req);
-                obj.response = statResponse(_res[0], _res[1]);
+
+                obj.response = obj.response ? statResponse(obj.response[0], obj.response[1]) : {error: 'response not returned'};
             }
             const msg = JSON.stringify({
                 id: uuid,

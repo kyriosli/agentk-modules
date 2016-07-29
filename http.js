@@ -762,20 +762,20 @@ export function fetch(url, options) {
             path: '/' + (parsedUrl.search || '')
         }
     } else {
-        http_host = parsedUrl.host;
+        http_host = parsedUrl.hostname;
         options = {
             host: parsedUrl.hostname,
             port: parsedUrl.port || (parsedUrl.protocol === 'https:' ? 443 : 80),
             path: parsedUrl.path
         }
     }
-
+    const headers = req.headers;
+    headers.has('host') || headers.set('Host', http_host);
+    headers.has('user-agent') || headers.set('User-Agent', client_ua);
 
     const method = options.method = req.method;
-    let headers = options.headers = groupHeaders(req);
+    options.headers = groupHeaders(req);
     options.agent = _agent;
-    if (!req.headers.has('host')) headers.host = http_host;
-    if (!req.headers.has('user-agent')) headers['User-Agent'] = client_ua;
 
 
     if (method === 'GET' ||

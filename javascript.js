@@ -1,9 +1,9 @@
 let UglifyJS, compressor;
 
-const esprima = process.mainModule.require('./src/javascript/esprima');
+const acorn = process.mainModule.require('./src/javascript/acorn');
 
-export const parse = esprima.parse;
-export const Syntax = esprima.Syntax;
+export const parse = acorn.parse;
+export const Syntax = process.mainModule.require('./src/javascript/Syntax');
 export const transform = process.mainModule.require('./src/javascript/transformer').transform;
 export const build = process.mainModule.require('./src/javascript/builder');
 export const minify = function (code) {

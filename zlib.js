@@ -3,12 +3,16 @@ const ozlib = require('zlib');
 /**
  * convert a buffer into a gzipped buffer
  *
+ * @method
  * @param {Buffer} buffer
  * @returns {Buffer}
  */
-export function gzip(buffer) {
-    return co.sync(ozlib.gzip, buffer);
-}
+export const gzip = sync(ozlib.gzip);
+export const gunzip = sync(ozlib.gunzip);
+export const inflate = sync(ozlib.inflate);
+export const inflateRaw = sync(ozlib.inflateRaw);
+export const deflate = sync(ozlib.deflate);
+export const deflateRaw = sync(ozlib.deflateRaw);
 
 
 /**
@@ -29,4 +33,16 @@ export function gzipTransform(stream) {
  */
 export function gunzipTransform(stream) {
     return stream.pipe(ozlib.createGunzip());
+}
+
+
+function sync(method) {
+    return function (buffer, opts) {
+        return co.promise(function (resolve, reject) {
+            method(buffer, opts, function cb(err, result) {
+                if (err) reject(err);
+                else resolve(result)
+            })
+        });
+    }
 }

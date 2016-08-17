@@ -733,6 +733,27 @@ export function _handler(cb) {
  */
 export let client_ua = `AgentK/${process.versions.agentk} NodeJS/${process.version.substr(1)}`;
 
+const fetch_res_proto = {
+    __proto__: Promise.prototype,
+    get ok() {
+        return co.yield(this).ok
+    },
+    get status() {
+        return co.yield(this).status
+    },
+    get stream() {
+        return co.yield(this).stream
+    },
+    buffer() {
+        return co.yield(this).buffer()
+    }, json() {
+        return co.yield(this).json()
+    }, text() {
+        return co.yield(this).text()
+    }
+};
+
+
 /**
  * Compose a http request.
  * `fetch` has two prototypes:
@@ -790,7 +811,7 @@ export function fetch(url, options) {
     }
 
     function composeRequest(buf) {
-        return new Promise(function (resolve, reject) {
+        const $res = new Promise(function (resolve, reject) {
             let timer = setTimeout(ontimeout, delay);
             buf && (options.headers['Content-Length'] = buf.length);
             const treq = (https ? ohttps : ohttp).request(options, function (tres) {
@@ -817,7 +838,9 @@ export function fetch(url, options) {
                 } catch (e) {
                 }
             }
-        })
+        });
+        Object.setPrototypeOf($res, fetch_res_proto);
+        return $res;
     }
 }
 

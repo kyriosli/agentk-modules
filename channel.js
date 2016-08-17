@@ -6,22 +6,26 @@
  *
  * @example
  *
- *     import * as channel from '../src/module/channel';
+ *  import * as channel from 'module/channel'
  *
- *     channel.registerProvider('get_pid', function () {
- *         return process.pid
- *     });
+ *  // register a provider named get_pid
+ *  channel.registerProvider('get_pid', function () {
+ *      return process.pid
+ *  });
  *
- *     channel.registerListener('notify', function (data) {
- *         console.log('received notify', data)
- *     });
+ *  // register a listener named notify
+ *  channel.registerListener('notify', function (data) {
+ *      console.log('received notify', data)
+ *  });
  *
- *     setInterval(function () {
- *         co.run(function () {
- *             console.log(process.pid, channel.query('get_pid'));
- *             channel.dispatch('notify', Math.random())
- *         }).done();
- *     }, 3000);
+ *  setInterval(function () {
+ *    co.run(function () {
+ *      // call provider get_pid on every worker
+ *      console.log(process.pid, channel.query('get_pid'));
+ *      // call listener notify on every worker
+ *      channel.dispatch('notify', Math.random())
+ *    }).done();
+ *  }, 3000);
  *
  * @title cross process message gathering and dispatching system
  */
@@ -38,21 +42,20 @@ if (isSlave) { // ipc enabled
 
 
 /**
- * register a provider for [query](#query). when called by one child, all pairs will be queried and the result
- * is returned as an array.
+ * register a provider that will be called when [query](#query) method  is called with the same `channel` argument.
  *
  * `cb` is called inside coroutine if `direct` is set to false
  *
- * @param {string} ch channel name to be queried
+ * @param {string} channel channel name to be queried
  * @param {function} cb callback method to get the data
- * @param {boolean} direct whether cb should run directly or inside coroutine, default to false
+ * @param {boolean} [direct] whether cb should run directly or inside coroutine, default to false
  */
-export function registerProvider(ch, cb, direct) {
-    providers[ch] = [cb, direct];
+export function registerProvider(channel, cb, direct) {
+    providers[channel] = [cb, !!direct];
 }
 
 /**
- * register a listener to dispatch
+ * register a listener named `channel` to be notified by [dispatch](#dispatch) method
  *
  * `cb` is called outside coroutine
  *
@@ -86,43 +89,50 @@ export function registerListener(ch, cb) {
 let nextSeq = 1;
 
 /**
- * query all processes, get the data by the provider registered, and return them as an array
- * @param {string} ch channel name to be queried
- * @returns {Array} all results of the pairs that registered a provider for this channel
+ * query all workers that has registered a provider named `channel` by [registerProvider](#registerProvider) method,
+ * and return the results as an array
+ *
+ * @param {string} channel channel name to be queried
+ * @returns {Array.<any>} all results returned
  */
-export function query(ch) {
+export function query(channel) {
     let results = isSlave ? process.sendAndWait({
         action: 'channel',
         cmd: 'query',
-        channel: ch
+        channel: channel
     }) : [];
-    if (ch in providers) {
-        results.push(providers[ch][0]());
+    if (channel in providers) {
+        results.push(providers[channel][0]());
     }
     return results;
 }
 
 /**
- * dispatch a message to all processes
- * @param {string} ch channel to be dispatched
- * @param data data to be dispatched, must be json serializable
+ * dispatch a message to all workers which has registered a listener with the same name `channel` by [registerListener](#registerListener).
+ *
+ * @param {string} channel channel to be dispatched
+ * @param [data] extra message data to be dispatched, must be json serializable
  */
-export function dispatch(ch, data) {
+export function dispatch(channel, data) {
     if (isSlave) {
         process.send({
             action: 'channel',
             cmd: 'dispatch',
-            channel: ch,
-            data: data
+            channel,
+            data
         })
     }
-    if (ch in listeners) {
-        listeners[ch](data);
+    if (channel in listeners) {
+        listeners[channel](data);
     }
 }
 
 const waitingQueries = {};
 
+/**
+ *
+ * @private
+ */
 export function onMessage(mesg) {
     // outside fiber
     let cmd = mesg.cmd;

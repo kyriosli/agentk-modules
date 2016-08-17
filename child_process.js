@@ -1,11 +1,16 @@
 /**
  * @title Wrapper for child process
+ *
+ * @example
+ *
+ *  import * as child_process from 'module/child_process'
+ *
+ *  let [stdout, stderr] = child_process.exec('ls -la'); // run a shell command
+ *  child_process.fork('path/to/node/module'); // run a node module or javascript file
  */
 
 const cp = require('child_process');
 const fs = require('fs');
-
-let ids = 0;
 
 /**
  * Creates a new Node.JS process and runs the specific node module. See: [child\_process.fork](https://nodejs.org/api/child_process.html#child_process_child_process_fork_modulepath_args_options)
@@ -24,7 +29,7 @@ let ids = 0;
  *   - options.env: environment variables
  *   - options.args: extra arguments
  *
- * @returns {node.child_process::ChildProcess}
+ * @returns {node.child_process.child_process}
  */
 export function fork(module, options = {}) {
     const opts = {};

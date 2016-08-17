@@ -1,3 +1,16 @@
+/**
+ *
+ * This module supplies `Buffer.alloc`, `Buffer.allocUnsafe`, `Buffer.allocUnsafeSlow` and `Buffer.from` class methods.
+ * See [https://nodejs.org/api/buffer.html](https://nodejs.org/api/buffer.html) for more usages and examples
+ *
+ * @example
+ *
+ *  if(!Buffer.from) include('module/buffer_polyfill');
+ *  Buffer.alloc(1024); // returns zero-filled buffer
+ *  Buffer.from("lorem ipsum"); // transform
+ *
+ * @title Buffer API implementations for lower version of Node.JS
+ */
 "use strict";
 const Buffer = global.Buffer;
 

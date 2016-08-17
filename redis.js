@@ -226,7 +226,7 @@ export class Pooled extends Context {
         super();
 
         this.getConnection = password ? function (key) {
-            let socket = pool.getConnection(key)
+            let socket = pool.getConnection(key);
             let conn = new Connection(socket);
             if (!socket._authed) {
                 socket.once('close', redis_close);

@@ -1,22 +1,27 @@
 /**
- * 使用一致性哈希维护连接的连接池
+ * A connection manager, using identity hash to manage connections.
+ *
+ * @example
+ *
+ *  import Pool from 'module/connection_pool';
+ *
+ *  // creates an connection pool that has two upstreams
+ *  let pool = new Pool(['192.168.0.100:8080', '192.168.0.101:8080'], 10);
+ *
+ *  // gets an connection
+ *  let conn = pool.getConnection('some_key');
+ *  // do something and returns the connection
+ *  conn._release();
+ *  // update upstream list
+ *  pool.update(['192.168.0.100:8080', '192.168.0.101:8080', '192.168.0.102:8080'])
  */
 
 const _net = require('net');
 
-/**
- *
- *
- * @usage
- *
- *     let pool = new Pool(['127.0.0.1:80'], 10)
- *     pool.getConnection('foo').once('connect', func)
- *
- */
 export default class ConnectionPool {
     /**
-     * @param {Array} hosts
-     * @param {Number} connections
+     * @param {Array.<string>} hosts host list
+     * @param {number} connections
      */
     constructor(hosts, connections = 10) {
         this.connections = connections | 0;
@@ -25,8 +30,8 @@ export default class ConnectionPool {
     }
 
     /**
-     * 更新一致性哈希
-     * @param {Array} hosts
+     * update host list
+     * @param {Array.<string>} hosts new host list
      */
     update(hosts) {
         // console.log('update', hosts);
@@ -45,6 +50,15 @@ export default class ConnectionPool {
         servers.sort((a, b) => a.hash - b.hash);
     }
 
+    /**
+     * gets an connection. the upstream will be selected with the hash calculated by the `key`, a same key will always
+     * be hashed to the same upstream, and even if the upstream list is changed, this still take effect for most keys.
+     *
+     * The connection is already connected
+     *
+     * @param {string} key identifier used to calculate the hash
+     * @returns {node.net.class.net.socket}
+     */
     getConnection(key) {
         return findServer(this.servers, key).factory();
     }

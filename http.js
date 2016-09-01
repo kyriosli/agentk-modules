@@ -741,15 +741,20 @@ const fetch_res_proto = {
     get status() {
         return co.yield(this).status
     },
+    get headers() {
+        return co.yield(this).headers
+    },
     get stream() {
         return co.yield(this).stream
     },
     buffer() {
-        return co.yield(this).buffer()
-    }, json() {
-        return co.yield(this).json()
-    }, text() {
-        return co.yield(this).text()
+        return co.yield(co.yield(this).buffer())
+    },
+    json() {
+        return co.yield(co.yield(this).json())
+    },
+    text() {
+        return co.yield(co.yield(this).text())
     }
 };
 

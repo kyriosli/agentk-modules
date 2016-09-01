@@ -88,6 +88,7 @@ class WebSocket extends EventEmitter {
                 expected = reader.next(buf);
             });
 
+        socket.setNoDelay(true); // Disable Nagle algorithm
         if (useDeflate) {
             const opcodes = [], deflate = makeDeflater(function (buf) {
                 send(opcodes.shift() | 0x40, buf.slice(0, -4))
@@ -358,7 +359,8 @@ export function listen(port, cb) {
             if (req.headers.upgrade.toLowerCase() !== 'websocket') {
                 return close(socket, 400, 'Bad Request');
             }
-            co.run(resolver, new WsRequest(req, socket)).then(null, function (err) {
+            const ws_req = new WsRequest(req, socket);
+            co.run.call(ws_req, cb, ws_req).then(null, function (err) {
                 console.error(err);
                 if (socket.request) {
                     socket.request.reject(500, err.message);
@@ -366,16 +368,11 @@ export function listen(port, cb) {
             });
         });
     });
-
-    function resolver(req) {
-        return cb.apply(req, [req])
-    }
-
 }
 
 
 function close(socket, status, statusText, body, headers) {
-    let buf = typeof body === 'string' ? new Buffer(body) : Buffer.isBuffer(body) ? body : body ? new Buffer(body + '') : new Buffer(0);
+    let buf = typeof body === 'string' ? Buffer.from(body) : Buffer.isBuffer(body) ? body : body ? Buffer.from(body + '') : new Buffer(0);
 
     let header = `HTTP/1.1 ${status} ${statusText || _http.STATUS_CODES[status]}\r\n${headers || ''}Content-Length: ${buf.length}\r\nConnection: close\r\n\r\n`;
     socket.write(header);

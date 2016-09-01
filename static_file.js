@@ -83,7 +83,7 @@ export default function staticFile(directory, option) {
         const headers = req.headers;
         let now = Date.now();
 
-        let filename = req.filename = path.resolve(directory, path.normalize(req.pathname));
+        let filename = req.filename = path.join(directory, path.normalize(req.pathname));
         let cached = cache.get(filename);
         let acceptsGzip = useGzip && GZIP.test(req.headers.get('accept-encoding'));
         let usesCache = headers.get('cache-control') !== 'no-cache';

@@ -698,10 +698,6 @@ export function _handler(cb) {
                     this.pipe(response);
                 }).once('end', onEnd).on('error', onerror);
 
-                function onEnd() {
-                    writeHeaders();
-                    response.end();
-                }
             } else {
                 resp._payload.then(function (buffer) {
                     writeHeaders();
@@ -709,6 +705,10 @@ export function _handler(cb) {
                 }, onerror)
             }
 
+            function onEnd() {
+                writeHeaders();
+                response.end();
+            }
             function writeHeaders() {
                 response.writeHead(resp.status, resp.statusText, groupHeaders(resp));
             }

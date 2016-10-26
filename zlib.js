@@ -40,8 +40,7 @@ function sync(method) {
     return function (buffer, opts) {
         return co.promise(function (resolve, reject) {
             method(buffer, opts, function cb(err, result) {
-                if (err) reject(err);
-                else resolve(result)
+                err ? reject(err) : resolve(result);
             })
         });
     }

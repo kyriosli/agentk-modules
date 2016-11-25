@@ -275,7 +275,7 @@ export function setup(trace_file, options) {
             const trace_msg = new Buffer('00000000' + uuid + JSON.stringify(arr) + '\r\n'),
                 msg_len = (trace_msg.length - 26).toString(16);
             trace_msg.write(msg_len, 8 - msg_len.length);
-            fs.appendFile(trace_file, trace_msg);
+            fs.appendFileSync(trace_file, trace_msg);
 
             if (err) throw err;
             else return resp;

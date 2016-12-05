@@ -13,13 +13,10 @@ export const parse = function (str) {
         var first = true, isMap = false, value;
         while (1) {
             var lineEnd = str.indexOf('\n', index);
-            if (lineEnd === -1) {
-                if (first)
-                    throw new Error('expected json or object or list: ' + line);
-                return {value: value, index}
-            }
+            if (lineEnd === -1)
+                break;
             var line = str.slice(index, lineEnd);
-            if (/^\s*$/.test(line)) { // empty line or comment
+            if (/^\s*(#.*)?$/.test(line)) { // empty line or comment
                 index = lineEnd + 1;
                 continue;
             }
@@ -31,11 +28,8 @@ export const parse = function (str) {
                 throw new Error('bad line: ' + line);
 
             var indent = m[1].length, name = m[2], val = m[4];
-            if (indent <= current_indent) {
-                if (first)
-                    throw new Error('expected json or object or list: ' + line);
-                return {value: value, index}
-            }
+            if (indent <= current_indent)
+                break;
             if (first) {
                 first = false;
                 isMap = !m[3];
@@ -55,6 +49,9 @@ export const parse = function (str) {
                 ({value: value[name], index} = accepts(index, indent));
             }
         }
+        if (first)
+            throw new Error('expected json or object or list: ' + line);
+        return {value: value, index}
 
     }
 };

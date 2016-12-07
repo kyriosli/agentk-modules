@@ -179,9 +179,9 @@ export class Headers {
 }
 
 const stream_Readable = require('stream').Readable;
-const _empty = Buffer.allocUnsafe(0);
 
 Buffer.alloc || include('buffer_polyfill');
+const _empty = Buffer.allocUnsafe(0);
 
 /**
  * Abstract class for http request/response entity

@@ -231,7 +231,7 @@ function filenameWriter(filename) {
     };
 
     function flush() {
-        if (toWrite) _fs.open(filename, 'a', 438, onFileOpen);
+        toWrite && _fs.open(filename, 'a', 438, onFileOpen);
     }
 
     function onFileOpen(err, fd) {
@@ -252,7 +252,7 @@ function filenameWriter(filename) {
     }
 
     function onError(err) {
-        if (err) console.log('logger::filenameWriter: write failed:' + err.message);
+        err && console.log('logger::filenameWriter: write failed:' + err.message);
     }
 }
 
@@ -276,7 +276,7 @@ function fdWriter(fd) {
     }
 
     function onError(err) {
-        if (err) console.log('logger::filenameWriter: write failed:' + err.message);
+        err && console.log('logger::filenameWriter: write failed:' + err.message);
     }
 }
 

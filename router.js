@@ -1,6 +1,7 @@
 import {Syntax, Expression, Statement, build} from 'javascript.js';
 
 const id = Expression.id, raw = Expression.raw, decl = Statement.decl, block = Statement.Block;
+const _eval = global.eval;
 
 const $pathname = id('pathname'),
     $_ = id('_'),
@@ -44,7 +45,7 @@ export default class Router {
         if (!(this instanceof Router))
             return new Router(cb);
         this.entries = [];
-        if (cb) this.all(cb);
+        cb && this.all(cb);
     }
 
     all(cb) {
@@ -102,12 +103,13 @@ export default class Router {
         const script = build(ast);
         //require('fs').writeFileSync('out.js', script);
 
-        this.apply = (0, eval)(script).apply(null, externals);
+        this.apply = _eval(script).apply(null, externals);
 
         stmts.length = params.length = 0;
 
         function compile(handle, stmts) {
-            if (!handle || !handle.apply) return;
+            if (!handle || !handle.apply)
+                return;
             if (!handle.entries) {
                 const If = Statement.If(
                     $_.assign(newExternal(handle).member('apply').call([$req, $args])).binary('!==', $undefined),
@@ -230,7 +232,7 @@ export default class Router {
                 }
             }
 
-            if (completions) stmts.push(id('completions.length').assign(raw(completionLen -= completions.length)).toStatement())
+            completions && stmts.push(id('completions.length').assign(raw(completionLen -= completions.length)).toStatement())
 
         }
 

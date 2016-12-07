@@ -119,7 +119,7 @@ export class Input {
                 self._buf = buf.slice(bufEnd - unread.length, bufEnd + data.length);
                 available -= data.length;
             }
-            for (; ;) {
+            while (true) {
                 if (!pending.length) {
                     stream.pause();
                     break;

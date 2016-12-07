@@ -143,7 +143,8 @@ class WebSocket extends EventEmitter {
         let bufLen = 0, buf = null, pos = 0;
 
         socket.on('data', function (_buf) {
-            if (closed) return;
+            if (closed)
+                return;
             if (bufLen === pos) { // empty
                 buf = _buf;
             } else {
@@ -152,7 +153,8 @@ class WebSocket extends EventEmitter {
             pos = 0;
             bufLen = buf.length;
             // console.log('RECV ', buf.length, buf);
-            if (bufLen < expected) return;
+            if (bufLen < expected)
+                return;
             try {
                 expected = reader.next().value;
             } catch (e) {
@@ -168,15 +170,18 @@ class WebSocket extends EventEmitter {
         });
 
         function onclose(code, reason) {
-            if (closed) return;
+            if (closed)
+                return;
             self._closed = closed = true;
             self.emit('close', code, reason);
         }
 
         function* msgReader() {
-            for (; ;) {
-                if (bufLen === -1) return;
-                while (bufLen < pos + 6) yield 6;
+            while(true) {
+                if (bufLen === -1)
+                    return;
+                while (bufLen < pos + 6)
+                    yield 6;
                 let tmp = buf.readUInt16LE(pos, true),
                     flags = tmp >> 4 & 0xf,
                     opcode = tmp & 0xf,
@@ -190,11 +195,13 @@ class WebSocket extends EventEmitter {
                 }
                 pos += 2;
                 if (payloadLen === 126) { // payload len is 2 bytes
-                    while (bufLen < pos + 6) yield 6;
+                    while (bufLen < pos + 6)
+                        yield 6;
                     payloadLen = buf.readUInt16BE(pos, true); // FIXME
                     pos += 2;
                 } else if (payloadLen === 127) { // payload len is 8 bytes
-                    while (bufLen < pos + 12) yield 12;
+                    while (bufLen < pos + 12)
+                        yield 12;
                     payloadLen = buf.readUInt32BE(pos, true); // FIXME
                     payloadLen = payloadLen * 0x100000000 + buf.readUInt32BE(pos + 4, true);
                     pos += 8;
@@ -202,7 +209,8 @@ class WebSocket extends EventEmitter {
                 // read mask
                 const mask = buf.slice(pos, pos + 4);
                 pos += 4;
-                while (bufLen < pos + payloadLen) yield payloadLen;
+                while (bufLen < pos + payloadLen)
+                    yield payloadLen;
                 for (let i = 0; i < payloadLen; i++) {
                     buf[i + pos] ^= mask[i & 3]
                 }
@@ -243,7 +251,8 @@ class WebSocket extends EventEmitter {
     }
 
     send(msg, string) {
-        if (this._closed) throw new Error('websocket closed');
+        if (this._closed)
+            throw new Error('websocket closed');
         let opcode, payload;
         if (!string && Buffer.isBuffer(msg)) {
             opcode = 2;
@@ -267,7 +276,8 @@ function onWsTimeout(ws) {
 const extensions = {
     'permessage-deflate': {
         setup(params, headers, settings) {
-            if (settings['permessage-deflate']) return;
+            if (settings['permessage-deflate'])
+                return;
             settings['permessage-deflate'] = true;
             headers.append('Sec-WebSocket-Extensions', 'permessage-deflate');
         }
@@ -296,7 +306,8 @@ export class WsRequest extends http.Request {
     }
 
     accept() {
-        if (!this._socket) throw new Error('request has been accepted or rejected');
+        if (!this._socket)
+            throw new Error('request has been accepted or rejected');
         clearTimeout(this._timer);
         let socket = this._socket;
         this._socket = this._timer = socket.request = null;
@@ -310,7 +321,8 @@ export class WsRequest extends http.Request {
         if (extensionString) {
             for (let extension of extensionString.split(/,\s*/)) {
                 const arr = extension.split('; '), name = arr[0];
-                if (!(name in extensions)) continue;
+                if (!(name in extensions))
+                    continue;
                 const params = {};
                 // for (let i = 1; i < arr.length; i++) {
                 //     const param = arr[i], idx = param.indexOf('=');
@@ -328,7 +340,8 @@ export class WsRequest extends http.Request {
     }
 
     reject(status = 400, message = null) {
-        if (!this._socket) return;
+        if (!this._socket)
+            return;
         clearTimeout(this._timer);
         let socket = this._socket;
         this._socket = this._timer = null;

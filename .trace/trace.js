@@ -41,7 +41,8 @@ export function setup(trace_file, options) {
         const server = $listen.apply(http, arguments);
 
         ws.listen(server, function (req) {
-            if (req.pathname !== '/_trace') return req.reject();
+            if (req.pathname !== '/_trace')
+                return req.reject();
             let ws = req.accept();
             ws.on('close', function () {
                 sockets.delete(this)
@@ -56,7 +57,8 @@ export function setup(trace_file, options) {
 
     http.fetch = function (url, options) {
         const fiber = co.Fiber.current, api_calls = fiber && fiber.api_calls;
-        if (!api_calls) return $fetch.apply(this, arguments);
+        if (!api_calls)
+            return $fetch.apply(this, arguments);
         const start = api_calls.time_start, time_start = stop(start);
 
         const req = typeof url === 'object' && url instanceof http.Request ? url : new http.Request(url, options);
@@ -85,7 +87,8 @@ export function setup(trace_file, options) {
 
         const entry = {
             next: function () {
-                if (!readAll(header, pos)) return {done: true};
+                if (!readAll(header, pos))
+                    return {done: true};
                 const len = parseInt(header.toString('binary', 0, 8), 16);
 
                 const ret = {start: pos + 24, id: header.toString('binary', 8), length: len};
@@ -170,7 +173,7 @@ export function setup(trace_file, options) {
             for (let msg of iterator) {
                 if (!pre || pre(msg.id)) {
                     var obj = JSON.parse('' + iterator.read(msg))[0];
-                    if (!post || post(obj)) ret.push({
+                    (!post || post(obj)) && ret.push({
                         id: msg.id,
                         remote: obj.remote, time_end: obj.time_end,
                         method: obj.request.method,
@@ -243,9 +246,10 @@ export function setup(trace_file, options) {
                 response: $response
             }];
 
-            if (api_calls.length) for (let obj of api_calls) {
+            for (let obj of api_calls) {
                 arr.push(obj);
-                if (!obj.request) continue;
+                if (!obj.request)
+                    continue;
                 const req = obj.request;
                 let url = req.url, idx = url.indexOf('?'), search = '';
                 if (idx !== -1) {
@@ -277,8 +281,10 @@ export function setup(trace_file, options) {
             trace_msg.write(msg_len, 8 - msg_len.length);
             fs.appendFileSync(trace_file, trace_msg);
 
-            if (err) throw err;
-            else return resp;
+            if (err)
+                throw err;
+            else
+                return resp;
         };
 
         function statResponse(resp, err) {
@@ -300,7 +306,8 @@ export function setup(trace_file, options) {
             }
             const headers = [];
             for (let kv of obj.headers) {
-                if (kv[0].toLowerCase() === 'content-type') target.type = kv[1];
+                if (kv[0].toLowerCase() === 'content-type')
+                    target.type = kv[1];
 
                 headers.push(kv[0] + ':' + kv[1])
             }
@@ -313,7 +320,8 @@ export function setup(trace_file, options) {
 
 function add(name, args) {
     const fiber = co.Fiber.current, api_calls = fiber && fiber.api_calls;
-    if (!api_calls) return;
+    if (!api_calls)
+        return;
     api_calls.push({name, args, time_start: stop(api_calls.time_start)});
 }
 

@@ -348,7 +348,8 @@ export class Request extends Body {
      *
      */
     constructor(url, options) {
-        if (options && typeof options !== 'object') options = null;
+        if (options && typeof options !== 'object')
+            options = null;
         super(options && options.body);
 
         this._url = url;
@@ -518,7 +519,8 @@ export class Response extends Body {
     constructor(body, options) {
         super(body);
 
-        if (options && typeof options !== 'object') options = null;
+        if (options && typeof options !== 'object')
+            options = null;
 
         let status = this.status = options && 'status' in options ? options.status | 0 : 200;
         this.statusText = options && 'statusText' in options ? '' + options.statusText : ohttp.STATUS_CODES[status] || '';

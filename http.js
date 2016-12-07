@@ -179,7 +179,7 @@ export class Headers {
 }
 
 const stream_Readable = require('stream').Readable;
-const _empty = new Buffer(0);
+const _empty = Buffer.allocUnsafe(0);
 
 Buffer.alloc || include('buffer_polyfill');
 
@@ -195,7 +195,7 @@ export class Body {
     constructor(body) {
         let buf = null, stream = null;
         if (!body) {
-            buf = Buffer.allocUnsafe(0)
+            buf = _empty
         } else if (body instanceof stream_Readable) {
             stream = body;
         } else {

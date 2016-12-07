@@ -234,7 +234,7 @@ export function setup(trace_file, options) {
             const $request = detail({
                 method: req.method,
                 search: req.search.slice(1),
-                entry: req.pathname
+                entry: req.originalPathname
             }, req), $response = statResponse(resp, err);
 
 
@@ -327,7 +327,7 @@ function add(name, args) {
 
 
 export function trace(module, prefix) {
-    co.yield(module[loadProgress]);
+    module[loadProgress].yield();
     for (let key of Object.getOwnPropertyNames(module)) {
         let desc = Object.getOwnPropertyDescriptor(module, key);
         if ('set' in desc) {

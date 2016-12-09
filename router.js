@@ -217,6 +217,7 @@ export default class Router {
                         if (body.length === 1 && body[0].isSimpleCall) {
                             const stmt = body[0];
                             stmt.test = test.binary('&&', stmt.test);
+                            stmt.isSimpleCall = false;
                             stmts.push(stmt);
                         } else {
                             stmts.push(Statement.If(
